@@ -19,6 +19,8 @@ env:
 # 定义工作任务
 jobs:
   build-and-commit:
+    permissions:
+      contents: write # 允许工作流修改仓库内容 (例如，提交和推送)
     # 运行此任务的虚拟机环境
     runs-on: ubuntu-latest
 
