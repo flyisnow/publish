@@ -1,0 +1,58 @@
+# 工作流的名称
+name: Update IPTV Playlist Daily 安徽移动的iptv
+
+# 工作流的触发条件
+on:
+  # 1. 定时触发：使用 cron 语法，这里设置为每天凌晨3点 (UTC时间)
+  schedule:
+    - cron: '0 3 * * *'
+  # 2. 手动触发：允许你在 GitHub Actions 页面点击按钮手动运行
+  workflow_dispatch:
+
+# 定义环境变量，方便修改
+env:
+  # !!!【请修改这里】!!! 把它换成你想要处理的原始 M3U 文件 URL
+  SOURCE_URL: 'https://raw.githubusercontent.com/xuedingedemao215/iptv/main/cmcc.m3u' 
+  # 定义输出文件的名称
+  OUTPUT_FILE: 'iptv/ahcmcc.m3u'
+
+# 定义工作任务
+jobs:
+  build-and-commit:
+    # 运行此任务的虚拟机环境
+    runs-on: ubuntu-latest
+
+    # 任务执行步骤
+    steps:
+      # 第一步：检出（下载）你的仓库代码到虚拟机
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 第二步：设置 Python 环境
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10' # 指定 Python 版本
+
+      # 第三步：安装 Python 依赖库
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
+
+      # 第四步：运行你的 Python 脚本
+      - name: Run script to process M3U
+        run: |
+          python process_m3u.py ${{ env.SOURCE_URL }} ${{ env.OUTPUT_FILE }}
+      # 第五步：提交并推送更改到仓库 (此步骤无需更改)
+      - name: Commit and push if changed
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions-bot@github.com"
+          git add ${{ env.OUTPUT_FILE }}
+          if git diff --staged --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git commit -m "Update IPTV playlist on $(date)"
+          git push
