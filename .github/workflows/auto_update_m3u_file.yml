@@ -43,7 +43,7 @@ jobs:
       # 第四步：运行你的 Python 脚本
       - name: Run script to process M3U
         run: |
-          python process_m3u.py ${{ env.SOURCE_URL }} ${{ env.OUTPUT_FILE }}
+          python iptv/process_m3u.py ${{ env.SOURCE_URL }} ${{ env.OUTPUT_FILE }}
       # 第五步：提交并推送更改到仓库 (此步骤无需更改)
       - name: Commit and push if changed
         run: |
